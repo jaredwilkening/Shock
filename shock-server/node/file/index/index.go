@@ -1,3 +1,4 @@
+// Package index contains indexers: bai, chunkrecord, record, size
 package index
 
 import (

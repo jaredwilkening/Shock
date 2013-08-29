@@ -8,6 +8,7 @@ import (
 )
 
 var (
+	a       = Auth
 	valid   = "S9RH9fP7nh4bPEdUwf2fm4CML"
 	invalid = "this_is_not_valid"
 )
@@ -17,13 +18,13 @@ func init() {
 }
 
 func TestAuthToken(t *testing.T) {
-	user, err := AuthToken(valid)
+	user, err := Auth("oauth " + valid)
 	if err != nil {
 		t.Fatal(err.Error())
 	} else {
 		fmt.Printf("%#v\n", user)
 	}
-	user, err = AuthToken(invalid)
+	user, err = Auth("oauth " + valid)
 	if err == nil {
 		t.Fatal("Invalid token not returning error.")
 	} else {

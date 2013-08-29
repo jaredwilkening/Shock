@@ -1,3 +1,4 @@
+// Package acl implements node acls modification and checking
 package acl
 
 import ()
@@ -12,11 +13,13 @@ type Acl struct {
 
 type Rights map[string]bool
 
+// SetOwner by user uuid
 func (a *Acl) SetOwner(uuid string) {
 	a.Owner = uuid
 	return
 }
 
+// UnSet rights by user uuid
 func (a *Acl) UnSet(uuid string, r Rights) {
 	if r["read"] {
 		a.Read = del(a.Read, uuid)
@@ -30,6 +33,7 @@ func (a *Acl) UnSet(uuid string, r Rights) {
 	return
 }
 
+// Set rights by user uuid
 func (a *Acl) Set(uuid string, r Rights) {
 	if r["read"] {
 		a.Read = insert(a.Read, uuid)
@@ -43,6 +47,7 @@ func (a *Acl) Set(uuid string, r Rights) {
 	return
 }
 
+// Check returns users rights
 func (a *Acl) Check(uuid string) (r Rights) {
 	r = Rights{"read": false, "write": false, "delete": false}
 	acls := map[string][]string{"read": a.Read, "write": a.Write, "delete": a.Delete}

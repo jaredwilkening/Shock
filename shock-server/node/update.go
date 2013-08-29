@@ -15,16 +15,20 @@ import (
 	"time"
 )
 
-//Modification functions
+// Update handle node modifications. Create is handled by
+// this function as well.
+//
+// Exclusive conditions:
+// 1) regular upload - files["upload"] is set.
+// 2) partial upload support - params["parts"] is set.
+// 3) virtual file node - params["type"] & params["source"] are set.
+// 4) set from local path - params["path"] is set.
+//
+// All condition allow setting of attributes.
+//
+// Additionally if parts has been set and there is a file
+// in files that matches this set in the node.
 func (node *Node) Update(params map[string]string, files FormFiles) (err error) {
-	// Exclusive conditions
-	// 1. has files[upload] (regular upload)
-	// 2. has params[parts] (partial upload support)
-	// 3. has params[type] & params[source] (v_node)
-	// 4. has params[path] (set from local path)
-	//
-	// All condition allow setting of attributes
-
 	if _, uploadMisplaced := params["upload"]; uploadMisplaced {
 		return errors.New("upload form field must be file encoded.")
 	}
@@ -171,6 +175,8 @@ func (node *Node) Update(params map[string]string, files FormFiles) (err error) 
 	return
 }
 
+// Save updates the version, revision history, last modification time, and then saves the
+// node to data directory and database.
 func (node *Node) Save() (err error) {
 	node.UpdateVersion()
 	if len(node.Revisions) == 0 || node.Revisions[len(node.Revisions)-1].Version != node.Version {
@@ -200,6 +206,10 @@ func (node *Node) Save() (err error) {
 	return
 }
 
+// UpdateVersion updates the version of a node. The version
+// is made up of md5 checksums of three sections of the
+// object. For uniqueness these concatenated with the node id
+// and checksumed to make the node version.
 func (node *Node) UpdateVersion() (err error) {
 	parts := make(map[string]string)
 	h := md5.New()
@@ -221,6 +231,7 @@ func (node *Node) UpdateVersion() (err error) {
 	return
 }
 
+// UpdateLinkages updates the node linkage
 func (node *Node) UpdateLinkages(ltype string, ids string, operation string) (err error) {
 	var link linkage
 	link.Type = ltype
@@ -234,6 +245,7 @@ func (node *Node) UpdateLinkages(ltype string, ids string, operation string) (er
 	return
 }
 
+// UpdateLinkages updates the node data tags
 func (node *Node) UpdateDataTags(types string) (err error) {
 	tagslist := strings.Split(types, ",")
 	for _, newtag := range tagslist {

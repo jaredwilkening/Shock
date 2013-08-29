@@ -8,6 +8,9 @@ import (
 	"os"
 )
 
+// SetFile moves the file from the temp upload director to the
+// node data directory, checksums the file, and updates the
+// node file information
 func (node *Node) SetFile(file FormFile) (err error) {
 	fileStat, err := os.Stat(file.Path)
 	if err != nil {
@@ -33,6 +36,8 @@ func (node *Node) SetFile(file FormFile) (err error) {
 	return
 }
 
+// SetFileFromPath sets the file path, checksums the file, and
+// updates the node file information
 func (node *Node) SetFileFromPath(path string) (err error) {
 	fileStat, err := os.Stat(path)
 	if err != nil {
@@ -64,6 +69,9 @@ func (node *Node) SetFileFromPath(path string) (err error) {
 	return
 }
 
+// SetFileFromParts concatinates the file parts into the data
+// directory, checksums the resulting file, and updates the
+// node file information
 func (node *Node) SetFileFromParts(p *partsList) (err error) {
 	out, err := os.Create(fmt.Sprintf("%s/%s.data", node.Path(), node.Id))
 	if err != nil {
@@ -101,18 +109,17 @@ func (node *Node) SetFileFromParts(p *partsList) (err error) {
 	return
 }
 
+// Rmdir deletes node data directory and content from filesystem
 func (node *Node) Rmdir() (err error) {
 	return os.RemoveAll(node.Path())
 }
 
+// Mkdir creates node data directory
 func (node *Node) Mkdir() (err error) {
-	err = os.MkdirAll(node.Path(), 0777)
-	if err != nil {
-		return
-	}
-	err = os.MkdirAll(node.IndexPath(), 0777)
-	if err != nil {
-		return
+	if err = os.MkdirAll(node.Path(), 0777); err != nil {
+		if err = os.MkdirAll(node.IndexPath(), 0777); err != nil {
+			return nil
+		}
 	}
 	return
 }

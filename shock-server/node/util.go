@@ -2,16 +2,14 @@ package node
 
 import ()
 
-type mappy map[string]bool
-
-func IsInMappy(item string, mp mappy) bool {
-	if _, ok := mp[item]; ok {
-		return true
+func contains(list []string, elem string) bool {
+	for _, t := range list {
+		if t == elem {
+			return true
+		}
 	}
 	return false
 }
-
-var virtIdx = mappy{"size": true}
 
 var (
 	LockMgr = NewLocker()

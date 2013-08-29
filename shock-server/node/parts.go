@@ -20,7 +20,7 @@ type partsList struct {
 	Parts  []partsFile `json:"parts"`
 }
 
-// Parts functions
+// loadParts opens the json file containing the parts information
 func (node *Node) loadParts() (p *partsList, err error) {
 	pf, err := ioutil.ReadFile(node.partsListPath())
 	if err != nil {
@@ -34,12 +34,14 @@ func (node *Node) loadParts() (p *partsList, err error) {
 	return
 }
 
+// writeParts writes the json file containing the parts information
 func (node *Node) writeParts(p *partsList) (err error) {
 	pm, _ := json.Marshal(p)
 	err = ioutil.WriteFile(node.partsListPath(), []byte(pm), 0644)
 	return
 }
 
+// partsCount returns the number of parts set in the parts file
 func (node *Node) partsCount() int {
 	p, err := node.loadParts()
 	if err != nil {
@@ -48,6 +50,7 @@ func (node *Node) partsCount() int {
 	return p.Count
 }
 
+// initParts initializes the json file containing the parts information
 func (node *Node) initParts(count int) (err error) {
 	err = os.MkdirAll(fmt.Sprintf("%s/parts", node.Path()), 0777)
 	p := &partsList{Count: count, Length: 0, Parts: make([]partsFile, count)}
@@ -55,6 +58,8 @@ func (node *Node) initParts(count int) (err error) {
 	return
 }
 
+// addVirtualParts adds virtual file parts to a node and checksums the
+// resulting virtual file
 func (node *Node) addVirtualParts(ids []string) (err error) {
 	nodes := Nodes{}
 	if _, err := dbFind(bson.M{"id": bson.M{"$in": ids}}, &nodes, nil); err != nil {
@@ -99,6 +104,8 @@ func (node *Node) addVirtualParts(ids []string) (err error) {
 	return
 }
 
+// addPart addes partial upload part to the node data directory
+// and updates the json file containing parts information
 func (node *Node) addPart(n int, file *FormFile) (err error) {
 	// load
 	p, err := node.loadParts()
